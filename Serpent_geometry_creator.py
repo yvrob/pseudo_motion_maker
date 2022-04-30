@@ -201,11 +201,17 @@ def create_plot(quality, shape, Rout, Rin, H, Zmin, radii_pebble):
         delta_z = H
     string = """%%---plotting geometry
 plot 1 {0} {1}
-plot 3 {1} {1} {2}
-plot 3 {1} {1} {3}\n\n""".format(
+plot 1 {0} {1} {2}
+plot 1 {0} {1} {3}
+plot 3 {1} {1} {4}
+plot 3 {1} {1} {5}
+plot 3 {1} {1} {6}\n\n""".format(
         int(quality * (delta_x / delta_z)),
         quality,
-        H / 2,
+        radii_pebble[-1]/2,
+        radii_pebble[-1],
+        Zmin + H / 2,
+        Zmin + H / 2 + radii_pebble[-1]/2,
         Zmin + H / 2 + radii_pebble[-1],
     )
     return string

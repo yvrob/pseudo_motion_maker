@@ -35,12 +35,15 @@ def create_input(
     string += "set power {}\n".format(power_Wth)
     string += "set opti {}\n".format(opti)
     string += "set ures {}\n".format(ures)
+    string += "set printm 1 0.0\n"
     if initial_restart:
         string += 'set rfr 0 "./restart/first_compos.wrk"\n'
 
-    string += 'set mixfile "./indices/input_mat_indices" {} threshold_type "{}" threshold {} waste "waste_file"\n'.format(
+    string += 'set mixfile "./indices/input_mat_indices" {} threshold "{}" {} waste "waste_file"\n'.format(
         fuel_material, threshold_type, threshold
     )
+    for i in additional_lines:
+        string += i+'\n'
 
     return string
 

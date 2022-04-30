@@ -93,9 +93,9 @@ def create_graphite_therm(name, temp, lib="endf", graphite_lib="gre7"):
         )
     idx = tmp_list[tmp_list <= temp].argmax()
     if temp == tmp_list[idx]:
-        string = "therm\t{}\t{}.{}\n".format(name, graphite_lib, markers_list[idx])
+        string = "therm\t{}\t{}.{}t\n".format(name, graphite_lib, markers_list[idx])
     else:
-        string = "therm\t{}\t{}\t{}.{}\t{}.{}\n".format(
+        string = "therm\t{}\t{}\t{}.{}t\t{}.{}t\n".format(
             name,
             temp,
             graphite_lib,

@@ -152,7 +152,7 @@ def write_motion_sequence(
     print("Step", 0)
     np.savetxt(
         path + "/indices/input_mat_indices_{}".format(0),
-        list_index,
+        list_index+1,
         fmt="%d",
         delimiter="\n",
     )
@@ -220,13 +220,13 @@ def write_motion_sequence(
 
         np.savetxt(
             path + "/indices/input_mat_indices_{}".format(i_step + 1),
-            list_index,
+            list_index+1,
             fmt="%d",
             delimiter="\n",
         )
         np.savetxt(
             path + "/indices/input_mat_indices_recirculation_{}".format(i_step + 1),
-            list_recirculation,
+            list_recirculation+1,
             fmt="%d",
             delimiter="\n",
         )

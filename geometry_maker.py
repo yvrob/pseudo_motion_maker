@@ -1,6 +1,6 @@
 #%%
-%load_ext autoreload
-%autoreload 2
+# %load_ext autoreload
+# %autoreload 2
 
 from packer import find_lattice
 from pbed_creator import write_pbed
@@ -27,14 +27,14 @@ import warnings
 
 #%% Input
 # What to do
-create_geometry = False
-create_Serpent = True
+create_geometry    = True
+create_Serpent     = True
 calculate_BU_distr = True
-create_restart = False
-calculate_motion = False
+create_restart     = True
+calculate_motion   = True
 
 ## Paths and naming
-path = "./tmp"
+path = "./PBMR_like"
 name_pos = "fpb_pos"
 universe_pebbles = "u_pebble"
 
@@ -48,11 +48,12 @@ plot = True
 
 #%% Read input from file
 globals().update(importlib.import_module(filename_input.replace(".py", "")).__dict__)
-path_model = path + "/model"
-dist_pebbles_ini = 3.1387
-dist_triso_ini = 0.05401723900752928
-if create_geometry:
 
+path_model = path + "/model"
+os.makedirs(path_model, exist_ok=True)
+
+if create_geometry:
+    print('Creating geometry')
     #%% Iteratively find pebble lattice positions
     pebble_bed, dist_pebbles, PF, found = find_lattice(
         lattice_type,
@@ -76,18 +77,6 @@ if create_geometry:
                 dist_pebbles * mult_a**2, PF
             )
         )
-pebble_bed = import_last(path_model, pattern='fpb_pos')
-if calculate_BU_distr:
-    #%% Calculate BU guess and apply comp = f(BU)
-    pebble_bed = calc_initial_BU(
-        pebble_bed, residence_time, npasses, average_discharge_burnup, H
-    )
-
-if create_Serpent:
-    #%% Write geometry to input files
-    with open(path_model + "/materials", "w") as f:
-        pass
-    os.makedirs(path_model, exist_ok=True)
     pbed_written = write_pbed(
         path_model,
         name_pos,
@@ -95,6 +84,12 @@ if create_Serpent:
         np.array(pebble_bed["r_pebbles"]),
         universe_pebbles,
     )
+
+if create_Serpent:
+    print('Creating Serpent input files')
+    #%% Write geometry to input files
+    with open(path_model + "/materials", "w") as f:
+        pass
     geometry_written = write_geometry_file(
         path_model,
         shape,
@@ -185,8 +180,8 @@ if create_Serpent:
     elif threshold_type == 'passes':
         threshold = npasses
     else:
-        threshold_type = name_to_ZAI(threshold_type)
-        threshold = linear_correlation(average_discharge_burnup)[threshold_type]
+        threshold_type = str(name_to_ZAI(threshold_type))
+        threshold = average_discharge_concentration
 
     input_written = write_input(
         path_model,
@@ -206,6 +201,8 @@ if create_Serpent:
     )
 pebble_bed = import_last(path_model, pattern='fpb_pos')
 if calculate_BU_distr:
+    print('Creating initial BU distribution')
+
     #%% Calculate BU guess and apply comp = f(BU)
     pebble_bed = calc_initial_BU(
         pebble_bed, residence_time, npasses, average_discharge_burnup, H
@@ -214,6 +211,7 @@ if calculate_BU_distr:
 
 #%% Create first restart files
 if create_restart:
+    print('Creating initial restart file')
     from time import time
     t0 = time()
     pebble_bed = replicate_dd(pebble_bed, mpitasks)
@@ -224,6 +222,7 @@ if create_restart:
 
 #%% Motion sequence
 if calculate_motion:
+    print('Calculating motion')
     sequence_scheme = create_sequence_scheme(pebble_bed, max_bu_step, residence_time, npasses, ncycles_to_simulate)
     write_bustep(path_model+'/input', pebble_bed, sequence_scheme, residence_time, npasses)
     write_motion_sequence(path_model, pebble_bed, direction, sequence_scheme, lattice_type, npasses, residence_time , randomize_reloading=True, plot=False)

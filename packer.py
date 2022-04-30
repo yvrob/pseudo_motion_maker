@@ -127,34 +127,41 @@ def create_lattice(
         df = shape_lattice(
             df, shape, r_pebbles, Rout, H, Rin, Zmin, partial_pebbles=partial_pebbles
         )
-
-    # Ensure same number of rows in fcc
-    if same_rows and shape in ["cyl", "sq"] and lattice_type == "fcc":
-        unique_z = np.unique(df.z)
-        if len(unique_z) % 2 != 0:
-            df = df[df.z < unique_z[-1]]
-
     if not isinstance(Zmin, type(None)) and Zmin != 0:
         df.z += Zmin
+    shaped = False
+    while not shaped:
+        # Ensure same number of rows in fcc
+        if same_rows and shape in ["cyl", "sq"] and lattice_type == "fcc":
+            unique_z = np.unique(df.z)
+            if len(unique_z) % 2 != 0:
+                df = df[df.z < unique_z[-1]]
 
-    if shape in ["cyl", "sq"]:
-        lo_dZ = df.z.min() - Zmin
-        hi_dZ = Zmin + H - df.z.max()
-        dZ = (hi_dZ - lo_dZ) / 2
-        df.z += dZ
+        if shape in ["cyl", "sq"]:
+            lo_dZ = df.z.min() - Zmin
+            hi_dZ = Zmin + H - df.z.max()
+            dZ = (hi_dZ - lo_dZ) / 2
+            df.z += dZ
 
-    # TO DO BETTER
-    if shape == "cyl":
-        df = df[np.logical_and(df.z >= r_pebbles, df.z <= Zmin + H - r_pebbles)]
+        # TO DO BETTER
+        if shape == "cyl":
+            df = df[np.logical_and(df.z >= r_pebbles, df.z <= Zmin + H - r_pebbles)]
 
-    if shape in ["cyl", "sq"]:
-        lo_dZ = df.z.min() - Zmin
-        hi_dZ = Zmin + H - df.z.max()
-        dZ = (hi_dZ - lo_dZ) / 2
-        df.z += dZ
+        if shape in ["cyl", "sq"]:
+            lo_dZ = df.z.min() - Zmin
+            hi_dZ = Zmin + H - df.z.max()
+            dZ = (hi_dZ - lo_dZ) / 2
+            df.z += dZ
 
-    if shape == "cyl":
-        df = df[np.logical_and(df.z >= r_pebbles, df.z <= Zmin + H - r_pebbles)]
+        if shape == "cyl":
+            df = df[np.logical_and(df.z >= r_pebbles, df.z <= Zmin + H - r_pebbles)]
+
+        if same_rows and shape in ["cyl", "sq"] and lattice_type == "fcc":
+            unique_z = np.unique(df.z)
+            if len(unique_z) % 2 == 0:
+                shaped = True
+        else:
+            shaped = True
 
     PF = calculate_packing_fraction(df, shape, r_pebbles, Rin, Rout, H)
     return df, PF
@@ -237,16 +244,21 @@ def find_lattice(
             )
             if abs(PF - target_PF) / target_PF < eps:
                 found = True
-                print("Found! dist_pebbles={:.10f}, PF={:.4f}".format(dist_pebbles, PF))
+                print(
+                    "Found! dist_pebbles={:.10f}, PF={:.4f}, N={}".format(
+                        dist_pebbles, PF, len(df)
+                    )
+                )
                 break
             dist_pebbles *= mult_a
         if not found:
             if verbose:
                 print(
-                    "Not found with dist_pebbles={:.10f}, mult_a={:.4f} (PF={:.4f}), trying again from dist_pebbles={:.4f} with mult_a={:.4f}".format(
+                    "Not found with dist_pebbles={:.10f}, mult_a={:.4f} (PF={:.4f}, N={}), trying again from dist_pebbles={:.4f} with mult_a={:.4f}".format(
                         dist_pebbles / mult_a,
                         mult_a,
                         PF,
+                        len(df),
                         dist_pebbles / mult_a**2,
                         mult_a + (1 - mult_a) / 2,
                     )

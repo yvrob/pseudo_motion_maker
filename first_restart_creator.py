@@ -212,7 +212,7 @@ def create_decomposed_restart_files(
             os.remove(files_out[-1])
         except:
             pass
-
+    print(files_out)
     print("Creating decomposed restart files")
     if parallel:
         MPItasks = [i for i in range(mpitasks)]
