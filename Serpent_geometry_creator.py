@@ -185,7 +185,8 @@ def create_triso(
             np.array(df["r_pebbles"]),
             "triso_particle",
         )
-    string += 'pbed trisos u_coolant "{}"'.format(triso_file)
+    string += 'cell inf u_matrix {} -infinite\n'.format(matrix_material)
+    string += 'pbed trisos u_matrix "{}"\n'.format(triso_file)
     return string
 
 

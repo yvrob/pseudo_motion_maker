@@ -10,7 +10,7 @@ nfy_lib_path = "/global/home/groups/co_nuclear/serpent/xsdata/endfb7/sss_endfb7.
 opti = 1
 ures = 1
 additional_input_lines = ["set dd 2", "set gcu    -1", "set pcc 0", "set bumode 2 16"]
-mpitasks = 12
+mpitasks = 20
 parallel_creation = True
 dep_output = "gFHR_equilibrium.interpolator"
 

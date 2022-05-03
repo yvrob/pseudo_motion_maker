@@ -16,7 +16,7 @@ dep_output = "input_one_pebble_dep.interpolator"
 
 # Core
 Zmin = 0
-Rin = 0  # inner radius, 0 if no inner radius
+Rin = 10  # inner radius, 0 if no inner radius
 Rout = 60  # 120 # core radius
 H = 100  # 310 # core height
 refl_thickness = 50

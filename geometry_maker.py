@@ -34,7 +34,7 @@ create_restart     = True
 calculate_motion   = True
 
 ## Paths and naming
-path = "./PBMR_like"
+path = "./PBMR_temperature"
 name_pos = "fpb_pos"
 universe_pebbles = "u_pebble"
 
