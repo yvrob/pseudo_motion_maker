@@ -32,12 +32,16 @@ def add_random_passes(df, npasses):
     return df
 
 
-def z_pass_to_time(df, residence_time, H):
+def z_pass_to_time(df, residence_time, H, direction):
     npasses = df.passes.max()
     time_per_pass = residence_time / npasses
     previous_passes_time = time_per_pass * (df.passes - 1)
-    Zmin = df.z.min()
-    current_pass_time = (df.z - Zmin) / H * time_per_pass
+    if direction == +1:
+        Zmin = df.z.min()
+        current_pass_time = (df.z - Zmin) / H * time_per_pass
+    elif direction == -1:
+        Zmax = df.z.max()
+        current_pass_time = (Zmax - df.z) / H * time_per_pass
     df["time"] = previous_passes_time + current_pass_time
     return df
 
@@ -47,9 +51,9 @@ def time_to_BU(df, residence_time, average_discharge_burnup):
     return df
 
 
-def calc_initial_BU(df, residence_time, npasses, average_discharge_burnup, H):
+def calc_initial_BU(df, residence_time, npasses, average_discharge_burnup, H, direction):
     df = add_random_passes(df, npasses)
-    df = z_pass_to_time(df, residence_time, H)
+    df = z_pass_to_time(df, residence_time, H, direction)
     df = time_to_BU(df, residence_time, average_discharge_burnup)
     return df
 
@@ -83,7 +87,7 @@ if __name__ == "__main__":
     )
     df["dist"] = np.linalg.norm(df[["x", "y"]], axis=1)
 
-    df = calc_initial_BU(df, residence_time, npasses, average_discharge_burnup, H)
+    df = calc_initial_BU(df, residence_time, npasses, average_discharge_burnup, H, direction)
     plot2D(df, 0, 5.68434e-14, field="BU", equal=False)
     df2 = (
         df[df.passes == 10]

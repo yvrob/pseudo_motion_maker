@@ -69,7 +69,7 @@ n_U = 1
 enrich_a_or_m = "m"
 fuel_others_ZA_list = ["O16"]
 fuel_others_n = [2]
-fuel_temp = 900 + 273.15
+fuel_temp = 900 + 300 #273.15
 
 ## Other materials
 precreated_materials_path = None

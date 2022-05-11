@@ -2,23 +2,23 @@ from copy import deepcopy
 
 
 ## Simulation
-neutron_pop = [1000, 100, 50]
-power_Wth = 400e6
+neutron_pop = [10000, 100, 50]
+power_Wth = 400e3
 acelib_path = "/global/home/groups/co_nuclear/serpent/xsdata/endfb7/sss_endfb7u.xsdata"
 dec_lib_path = "/global/home/groups/co_nuclear/serpent/xsdata/endfb7/sss_endfb7.dec"
 nfy_lib_path = "/global/home/groups/co_nuclear/serpent/xsdata/endfb7/sss_endfb7.nfy"
 opti = 1
 ures = 1
 additional_input_lines = ["set dd 2", "set gcu    -1", "set pcc 0", "set bumode 2 16"]
-mpitasks = 3
-parallel_creation = True
-dep_output = "input_one_pebble_dep.interpolator"
+mpitasks = 6
+parallel_creation = False
+dep_output = "gFHR_equilibrium.interpolator"
 
 # Core
 Zmin = 0
-Rin = 10  # inner radius, 0 if no inner radius
-Rout = 60  # 120 # core radius
-H = 100  # 310 # core height
+Rin = 5  # inner radius, 0 if no inner radius
+Rout = 40  # 120 # core radius
+H = 70  # 310 # core height
 refl_thickness = 50
 shape = "cyl"  # can be cyl or whatever (will be cuboid if not cyl)
 quality = 3000  # pixels for plots
@@ -28,12 +28,12 @@ target_PF = 0.6  # packing fraction to reach
 lattice_type = "fcc"  # can be hcp (not usable), fcc, sc
 
 ## Cycle
-residence_time = 300
-npasses = 10
-average_discharge_burnup = 92
+residence_time = 50
+npasses = 4
+average_discharge_burnup = 30
 direction = -1  # +1=up, -1=down
-max_bu_step = 10  # days
-ncycles_to_simulate = 0.5
+max_bu_step = 3  # days
+ncycles_to_simulate = 1
 threshold_type = "burnup"
 
 ## Pebble
@@ -62,12 +62,12 @@ triso_PF = 0.5  # to check
 ## Fuel
 density = 10.4
 density_a_or_m = "m"
-enrich = 99e-2
+enrich = 70e-2
 n_U = 1
 enrich_a_or_m = "m"
 fuel_others_ZA_list = ["O16", "Cnat"]
 fuel_others_n = [1, 2]
-fuel_temp = 900 + 273.15
+fuel_temp = 900
 
 ## Other materials
 precreated_materials_path = None

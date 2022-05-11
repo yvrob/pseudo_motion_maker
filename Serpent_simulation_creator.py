@@ -37,7 +37,7 @@ def create_input(
     string += "set ures {}\n".format(ures)
     string += "set printm 1 0.0\n"
     if initial_restart:
-        string += 'set rfr 0 "./restart/first_compos.wrk"\n'
+        string += 'set rfr idx 0 "./restart/first_compos.wrk"\n'
 
     string += 'set mixfile "./indices/input_mat_indices" {} threshold "{}" {} waste "waste_file"\n'.format(
         fuel_material, threshold_type, threshold

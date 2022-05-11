@@ -29,16 +29,15 @@ import warnings
 # What to do
 create_geometry    = True
 create_Serpent     = True
-calculate_BU_distr = True
 create_restart     = True
 calculate_motion   = True
 
 ## Paths and naming
-path = "./PBMR_temperature"
+path = "./smaller_test"
 name_pos = "fpb_pos"
 universe_pebbles = "u_pebble"
 
-filename_input = "PBMR_like"
+filename_input = "smaller_test"
 
 
 # Secondary input
@@ -200,17 +199,15 @@ if create_Serpent:
         check=False,
     )
 pebble_bed = import_last(path_model, pattern='fpb_pos')
-if calculate_BU_distr:
+
+#%% Create first restart files
+if create_restart:
     print('Creating initial BU distribution')
 
     #%% Calculate BU guess and apply comp = f(BU)
     pebble_bed = calc_initial_BU(
-        pebble_bed, residence_time, npasses, average_discharge_burnup, H
+        pebble_bed, residence_time, npasses, average_discharge_burnup, H, direction
     )
-
-
-#%% Create first restart files
-if create_restart:
     print('Creating initial restart file')
     from time import time
     t0 = time()

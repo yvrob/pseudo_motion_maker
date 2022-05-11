@@ -124,28 +124,6 @@ def write_domain_restart(df, MPI_ID, fuel_material, dep_output, files_out):
         cnt = 0
         pc_inc = 2
 
-        # Parent
-        name = "original"
-        adens = interpolator(0)
-        nnuc = adens.shape[0] - 1
-        content = b""
-        content += struct.pack("q", len(name))
-        content += struct.pack("{}s".format(len(name)), str.encode(name))
-        content += struct.pack("d", 0.0)  # BU global
-        content += struct.pack("d", 0.0)  # BU days
-        content += struct.pack("q", nnuc)
-        content += struct.pack("d", adens[-1])
-        content += struct.pack("d", 0.0)  # mdens
-        content += struct.pack("d", 0.0)  # BU
-        content += struct.pack("q", 0)  # pass
-        content += struct.pack("q", -1)
-        content += struct.pack("d", adens[-2])
-
-        for j in range(len(adens) - 2):
-            content += struct.pack("q", list_iso[j])
-            content += struct.pack("d", adens[j])
-        fo.write(content)
-
         # Zones
         for i in range(len(df)):
             mat = df.iloc[i]
