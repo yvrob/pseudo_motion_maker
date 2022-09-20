@@ -32,16 +32,29 @@ def add_random_passes(df, npasses):
     return df
 
 
-def z_pass_to_time(df, residence_time, H, direction):
+def z_pass_to_time(df, residence_time, H, direction, layers=None):
     npasses = df.passes.max()
     time_per_pass = residence_time / npasses
     previous_passes_time = time_per_pass * (df.passes - 1)
+    Zmin = df.z.min()
+    Zmax = df.z.max()
+    H = Zmax - Zmin
     if direction == +1:
-        Zmin = df.z.min()
-        current_pass_time = (df.z - Zmin) / H * time_per_pass
+        dz = df.z - Zmin
     elif direction == -1:
-        Zmax = df.z.max()
-        current_pass_time = (Zmax - df.z) / H * time_per_pass
+        dz = Zmax - df.z
+    if not isinstance(layers, type(None)):
+        dz = H/layers * ((dz // (H/layers)) + 1).astype(int)
+
+    current_pass_time = dz / H * time_per_pass
+    df["time"] = previous_passes_time + current_pass_time
+    return df
+
+def random_pass_to_time(df, residence_time):
+    npasses = df.passes.max()
+    time_per_pass = residence_time / npasses
+    previous_passes_time = time_per_pass * (df.passes - 1)
+    current_pass_time = np.random.random(len(df)) * time_per_pass
     df["time"] = previous_passes_time + current_pass_time
     return df
 
@@ -51,9 +64,12 @@ def time_to_BU(df, residence_time, average_discharge_burnup):
     return df
 
 
-def calc_initial_BU(df, residence_time, npasses, average_discharge_burnup, H, direction):
+def calc_initial_BU(df, residence_time, npasses, average_discharge_burnup, H, direction, layers, random=True):
     df = add_random_passes(df, npasses)
-    df = z_pass_to_time(df, residence_time, H, direction)
+    if not random:
+        df = z_pass_to_time(df, residence_time, H, direction, layers)
+    else:
+        df = random_pass_to_time(df, residence_time)
     df = time_to_BU(df, residence_time, average_discharge_burnup)
     return df
 

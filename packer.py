@@ -7,6 +7,7 @@ import numpy as np
 import pandas as pd
 import warnings
 from plotter import *
+import warnings
 
 #%% Functions
 # Create lattice with correct lattice
@@ -167,12 +168,15 @@ def create_lattice(
     return df, PF
 
 
-def calculate_packing_fraction(df, shape, r_pebbles, Rin, Rout, H):
-    Vpebbles = len(df) * calculate_volume("sph", 0, r_pebbles, 0)
-    Vcore = calculate_volume(shape, Rin, Rout, H)
-    PF = Vpebbles / Vcore
-    return PF
+def calculate_volumes(N, shape, r_spheres, Rin, Rout, H):
+    Vspheres = N * calculate_volume("sph", 0, r_spheres, 0)
+    Vcontainer = calculate_volume(shape, Rin, Rout, H)
+    return Vspheres, Vcontainer 
 
+def calculate_packing_fraction(df, shape, r_spheres, Rin, Rout, H):
+    Vspheres, Vcontainer = calculate_volumes(len(df), shape, r_spheres, Rin, Rout, H)    
+    PF = Vspheres / Vcontainer
+    return PF
 
 def calculate_volume(shape, Rin, Rout, H):
     if shape == "cyl":
@@ -186,11 +190,11 @@ def calculate_volume(shape, Rin, Rout, H):
 # Iteratively finds right distance to match packing fraction
 def find_lattice(
     lattice_type,
-    r_pebbles,
+    r_spheres,
     shape,
     Rout,
     H,
-    target_PF,
+    target,
     Rin=0,
     Zmin=0,
     dist_pebbles_ini=1000,
@@ -203,6 +207,14 @@ def find_lattice(
     same_rows=True,
     verbose=False
 ):
+    # Choose between N (>1) and PF (<1)
+    if target >= 1:
+        Vspheres, Vcontainer = calculate_volumes(target, shape, r_spheres, Rin, Rout, H)
+        target_PF = Vspheres / Vcontainer
+    else:
+        target_PF = target
+    print('Packing with target = {:.2f}% ...'.format(target_PF*100))
+
     # Quick check
     if (
         lattice_type == "fcc"
@@ -230,7 +242,7 @@ def find_lattice(
             trying_again = False
             df, PF = create_lattice(
                 lattice_type,
-                r_pebbles,
+                r_spheres,
                 dist_pebbles,
                 shape,
                 Rout,
@@ -245,7 +257,7 @@ def find_lattice(
             if abs(PF - target_PF) / target_PF < eps:
                 found = True
                 print(
-                    "Found! dist_pebbles={:.10f}, PF={:.4f}, N={}".format(
+                    "\tFound: dist_pebbles={:.10f}, PF={:.4f}, N={}".format(
                         dist_pebbles, PF, len(df)
                     )
                 )
@@ -269,6 +281,12 @@ def find_lattice(
             cnt += 1
         if cnt > 50:
             break
+    if not found:
+        warnings.warn(
+            "Did not find any good solution! Taking best with dist_pebbles={:.4f}, (PF={:.4f}, N={})".format(
+                dist_pebbles * mult_a**2, PF, len(df)
+            )
+        )
     return df, dist_pebbles, PF, found
 
 

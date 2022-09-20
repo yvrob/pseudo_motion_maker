@@ -2,17 +2,17 @@ from copy import deepcopy
 
 
 ## Simulation
-neutron_pop = [100000, 1000, 50]
+neutron_pop = [1000000, 100, 5]
 power_Wth = 400e6
 acelib_path = "/global/home/groups/co_nuclear/serpent/xsdata/endfb7/sss_endfb7u.xsdata"
 dec_lib_path = "/global/home/groups/co_nuclear/serpent/xsdata/endfb7/sss_endfb7.dec"
 nfy_lib_path = "/global/home/groups/co_nuclear/serpent/xsdata/endfb7/sss_endfb7.nfy"
 opti = 1
 ures = 1
-additional_input_lines = ["set dd 2", "set gcu    -1", "set pcc 0", "set bumode 2 16"]
+additional_input_lines = ["set dd 2", "set gcu -1", "set pcc 0", "set bumode 2 16", "set memfrac 0.99", "set repro 0", "set shbuf 0 0", "set outp 10000000", ]
 mpitasks = 20
 parallel_creation = True
-dep_output = "gFHR_equilibrium.interpolator"
+dep_output = "../one_peb9.8/input_one_pebble_dep.m"
 
 # Core
 Zmin = 0
@@ -30,21 +30,21 @@ lattice_type = "fcc"  # can be hcp (not usable), fcc, sc
 ## Cycle
 residence_time = 300
 npasses = 10
-average_discharge_burnup = 92
+average_discharge_burnup = 80
 average_discharge_concentration = average_discharge_burnup*1.53e-06 # factor from PHYSOR2022 paper
 direction = -1  # +1=up, -1=down
 max_bu_step = 5  # days
-ncycles_to_simulate = 3
+ncycles_to_simulate = 5
 threshold_type = "Cs137"
 
 ## Pebble
-radii_pebble = [0, 2.95, 3.00]
+radii_pebble = [0, 2.5, 3.00]
 # Parameters for iterative search with target packing fraction within volume
 dist_pebbles_ini = radii_pebble[-1] * 5  # initial distance, huge on purpose
 dist_pebbles_ini = 3.1387
-dist_triso_ini = 0.05401723900752928
-mult_a = 1 - 1e-1  # initial multiplier for dist_pebbles, everytime the PF is too small
-eps = 1e-2  # desired precision
+dist_triso_ini = radii_pebble[-2]
+mult_a = 1 - 1e-3  # initial multiplier for dist_pebbles, everytime the PF is too small
+eps = 1e-3  # desired precision
 
 ## Triso
 kernel_radius = 500e-4 / 2
@@ -59,12 +59,12 @@ radii_triso = [
     SiC_radius,
     oPyC_radius,
 ]  # List of radii for the triso particles (cm) [fuel, buffer, inner PyC, SiC, outer PyC]
-triso_PF = 0.3  # to check
+triso_PF = 15000
 
 ## Fuel
 density = 10.4
 density_a_or_m = "m"
-enrich = 9.6e-2
+enrich = 9.8e-2
 n_U = 1
 enrich_a_or_m = "m"
 fuel_others_ZA_list = ["O16"]
@@ -104,7 +104,7 @@ helium_density = (
     * helium_pressure
     / other_materials_temp
     * (1 + 0.4446 * helium_pressure / (other_materials_temp**1.2)) ** -1
-)
+) * 1e-3
 helium = {
     "material_name": coolant_material,
     "ZA_list": ["He4"],
@@ -135,8 +135,8 @@ graph_shell = {
     "ZA_list": ["Cnat"],
     "fractions_list": [1],
     "fractions_a_or_m": "a",
-    "density": 8.72390e-02,
-    "density_a_or_m": "a",
+    "density": 1.75,
+    "density_a_or_m": "m",
     "temperatureK": fuel_temp,
     "moderator_name": "triso_therm",
     "moderator_ZA": "Cnat",
@@ -150,23 +150,22 @@ matrix["material_name"] = matrix_material
 
 buffer = deepcopy(graph_shell)
 buffer["material_name"] = buffer_material
-buffer["density"] = 1.01
-buffer["density_a_or_m"] = "m"
+buffer["density"] = 1.04
 
 iPyC = deepcopy(buffer)
 iPyC["material_name"] = iPyC_material
-iPyC["density"] = 1.86
+iPyC["density"] = 1.88
 
 oPyC = deepcopy(buffer)
 oPyC["material_name"] = oPyC_material
-oPyC["density"] = 1.89
+oPyC["density"] = 1.88
 
 SiC = {
     "material_name": SiC_material,
     "ZA_list": ["Cnat", "Si28"],
     "fractions_list": [1, 1],
     "fractions_a_or_m": "a",
-    "density": 3.19,
+    "density": 3.15,
     "density_a_or_m": "m",
     "temperatureK": fuel_temp,
     "moderator_name": "triso_therm",

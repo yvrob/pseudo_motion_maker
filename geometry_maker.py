@@ -33,11 +33,11 @@ create_restart     = True
 calculate_motion   = True
 
 ## Paths and naming
-path = "./smaller_test"
+path = "./PBMR_400" 
 name_pos = "fpb_pos"
 universe_pebbles = "u_pebble"
 
-filename_input = "smaller_test"
+filename_input = "PBMR_400"
 
 
 # Secondary input
@@ -70,12 +70,12 @@ if create_geometry:
         centeredR=True,
         same_rows=same_rows,
     )
-    if not found:
-        warnings.warn(
-            "Did not find any good solution! Taking best with dist_pebbles={:.4f}, (PF={:.4f})".format(
-                dist_pebbles * mult_a**2, PF
-            )
-        )
+    #if not found:
+    #    warnings.warn(
+    #        "Did not find any good solution! Taking best with dist_pebbles={:.4f}, (PF={:.4f})".format(
+    #            dist_pebbles * mult_a**2, PF
+    #        )
+    #    )
     pbed_written = write_pbed(
         path_model,
         name_pos,
@@ -205,8 +205,9 @@ if create_restart:
     print('Creating initial BU distribution')
 
     #%% Calculate BU guess and apply comp = f(BU)
+    layers = 5
     pebble_bed = calc_initial_BU(
-        pebble_bed, residence_time, npasses, average_discharge_burnup, H, direction
+        pebble_bed, residence_time, npasses, average_discharge_burnup, H, direction, layers
     )
     print('Creating initial restart file')
     from time import time
